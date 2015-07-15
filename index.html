@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Freelance Task Tracker</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+
+            $('[type=range]').change(function () {
+                $('#alert').get(0).volume = $(this).val() / 100;
+            });
+
+            function getTasks()
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: 'track.php',
+                    dataType: 'json',
+                    data: $('#send-data').serialize(),
+                    success: function (response) {
+
+                        if (typeof (response.data['freelance_ru']) != 'undefined') {
+                            $('#alert').get(0).play();
+
+                            var freelance_ru = response.data['freelance_ru'];
+
+                            for (var i = 0; i < freelance_ru.length; ++i) {
+                                window.open('http://freelance.ru' + freelance_ru[i]);
+                            }
+                        }
+                    }
+                });
+            }
+
+            $('#send-data').submit(function () {
+
+                getTasks();
+                setInterval(getTasks, 50000);
+
+                return false;
+            });
+
+        });
+
+    </script>
+
+    <style>
+        p {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+
+<audio id="alert" src="sound/alarm.mp3" preload="auto"></audio>
+<p>
+    Alert Volume
+</p>
+
+<p>
+    <input type="range" min="0" max="100" value="100" step="1">
+</p>
+
+<form id="send-data">
+
+    <p>
+        Freelance.ru
+        <input type="text" name="freelance_ru_login" required>
+        <input type="password" name="freelance_ru_pass" required>
+
+        <input type="submit" value="Start tracking">
+    </p>
+
+</form>
+
+<p>Glory for MightyHeap, 2015</p>
+
+</body>
+</html>
