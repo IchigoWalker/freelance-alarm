@@ -9,12 +9,16 @@
 
         $(function () {
 
+            var started = false;
+            var volume = localStorage.getItem('volume') || 100;
+            $('[type=range]').val(volume);
+
             $('[type=range]').change(function () {
                 $('#alert').get(0).volume = $(this).val() / 100;
+                localStorage.setItem('volume', $(this).val());
             });
 
-            function getTasks()
-            {
+            function getTasks() {
                 $.ajax({
                     type: 'POST',
                     url: 'track.php',
@@ -37,8 +41,21 @@
 
             $('#send-data').submit(function () {
 
-                getTasks();
-                setInterval(getTasks, 50000);
+                var timer;
+                if (!started) {
+
+                    $('[type=submit]').val("Stop tracking");
+                    getTasks();
+                    timer = setInterval(getTasks, 50000);
+                }
+                else {
+                    $('[type=submit]').val("Start tracking");
+                    clearInterval(timer);
+                }
+
+                started = !started;
+                $('[type=text]').prop('readonly', started);
+                $('[type=password]').prop('readonly', started);
 
                 return false;
             });
@@ -69,8 +86,8 @@
 
     <p>
         Freelance.ru
-        <input type="text" name="freelance_ru_login" required>
-        <input type="password" name="freelance_ru_pass" required>
+        <input type="text" name="freelance_ru_login" placeholder="Username" required>
+        <input type="password" name="freelance_ru_pass" placeholder="Password" required>
 
         <input type="submit" value="Start tracking">
     </p>
